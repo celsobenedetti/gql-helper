@@ -12,7 +12,7 @@ import (
 
 var API = os.Getenv("API")
 var X = os.Getenv("X")
-var TOKEN = os.Getenv("TOKEN")
+var AUTH = os.Getenv("AUTH")
 var QUERY_FILE = os.Getenv("QUERY_FILE")
 var VARS_FILE = os.Getenv("VARS_FILE")
 
@@ -52,7 +52,7 @@ func (c *Client) doRequest() error {
 	}
 	req.Header.Set("X-Contextual-Entity", X)
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bearer "+TOKEN)
+	req.Header.Set("Authorization", AUTH)
 
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
@@ -90,7 +90,7 @@ func readQueryAndVars() (*Query, error) {
 		return nil, err
 	}
 
-	var vars AnalyticDownloadParams
+	vars := make(JSON)
 	err = json.Unmarshal(varsBuf, &vars)
 	if err != nil {
 		return nil, err
@@ -102,11 +102,13 @@ func readQueryAndVars() (*Query, error) {
 	}, nil
 }
 
+type JSON = map[string]any
+
 type Client struct {
 	query *Query
 }
 
 type Query struct {
-	Query string                 `json:"query"`
-	Vars  AnalyticDownloadParams `json:"variables"`
+	Query string `json:"query"`
+	Vars  JSON   `json:"variables"`
 }
